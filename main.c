@@ -35,9 +35,9 @@ void EntradaDeDados(int i, struct Produto *produtos){
     scanf("%f", &produtos[i].preco);
     printf("Digite a quantidade de produtos vendidos:\n");
     scanf("%d", &produtos[i].quantidade);
-    printf("Digite digite o percentual de lucro obtido com o produto:");
+    printf("Digite digite o percentual de lucro obtido com o produto:\n");
     scanf("%f", &produtos[i].percentual);
-    printf("Digite o lucro obtido:");
+    printf("Digite o lucro obtido:\n");
     scanf("%f", &produtos[i].lucro);
 }
 
@@ -128,8 +128,9 @@ void lucratividade(int tamanho, struct Produto *produto){
     Ordenar(tamanho, produto);
     printf("\n---lucratividade---\n");
     for (int i = 0; i < tamanho; ++i) {
-        printf("produto: %d: \n", i+1);
+        printf("\n\nproduto: %d \n", i+1);
         MostraDados(i,produto);
+        printf("\n\n");
     }
 }
 
