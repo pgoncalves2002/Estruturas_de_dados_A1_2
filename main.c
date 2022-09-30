@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <string.h>
 struct Produto{
     int cod;
     char descricao[50];
@@ -11,10 +12,13 @@ struct Produto{
 };
 
 int ProcuraProduto(int tamanho, int codigo, struct Produto *produtos){
-    int posicao = -1;
+    int posicao;
     for (int i = 0; i < tamanho; ++i) {
         if (codigo == produtos[i].cod){
             posicao = i;
+            break;
+        } else{
+            posicao = -1;
         }
     }
     return posicao;
@@ -34,19 +38,40 @@ void EntradaDeDados(int i, struct Produto *produtos){
     printf("Digite digite o percentual de lucro obtido com o produto:");
     scanf("%f", &produtos[i].percentual);
     printf("Digite o lucro obtido:");
-    scanf("%f", produtos[i].lucro);
+    scanf("%f", &produtos[i].lucro);
 }
 
 
 void MostraDados(int posicao, struct Produto *produto){
-    if (produto[posicao].quantidade == 0){
-
-    }else {
-        printf("código: %d\n", produto[posicao].cod);
         printf("Descrição: %s\n", produto[posicao].descricao);
         printf("Preço: %.2f\n", produto[posicao].preco);
-        printf("Quantidade: %d\n", produto[posicao].quantidade);
-    }
+}
+
+void troca(int posicao, struct Produto *produto) {
+    struct Produto *aux;
+    aux = (struct Produto *) malloc(sizeof(struct Produto));
+    //salvando os valores na variável auxiliar
+    aux[0].cod = produto[posicao + 1].cod;
+    strcpy(aux[0].descricao, produto[posicao + 1].descricao);
+    aux[0].preco = produto[posicao + 1].preco;
+    aux[0].quantidade = produto[posicao + 1].quantidade;
+    aux[0].percentual = produto[posicao + 1].percentual;
+    aux[0].lucro = produto[posicao + 1].lucro;
+
+    //
+    produto[posicao + 1].cod = produto[posicao].cod;
+    strcpy(produto[posicao + 1].descricao, produto[posicao].descricao);
+    produto[posicao + 1].preco = produto[posicao].preco;
+    produto[posicao + 1].quantidade = produto[posicao].quantidade;
+    produto[posicao + 1].percentual = produto[posicao].percentual;
+    produto[posicao + 1].lucro = produto[posicao].lucro;
+
+    produto[posicao].cod = aux[0].cod;
+    strcpy(produto[posicao].descricao, aux[0].descricao);
+    produto[posicao].preco = aux[0].preco;
+    produto[posicao].quantidade = aux[0].quantidade;
+    produto[posicao].percentual = aux[0].percentual;
+    produto[posicao].lucro = aux[0].lucro;
 }
 
 
@@ -61,81 +86,50 @@ int Inclusao(int tamanho, struct Produto *produtos){
     EntradaDeDados(posicao, produtos);
     return tamanho;
 }
-
-
-void Alteracao (int tamanho, struct Produto *produtos){
-    int codigo;
-    printf("Digite o código do produto que deseja alterar:\n");
-    scanf("%d", &codigo);
-
-    int posicao = ProcuraProduto(tamanho, codigo, produtos);
-
-    if(produtos[posicao].quantidade == 0){
-        posicao = -1;
-    }
-    if (posicao < 0 ){
-        printf("Código inválido");
-    }else{
-        printf("Produto encontrado com sucesso!\n");
-        MostraDados(posicao,produtos);
-        printf("Digite os novos dados:\n");
-        EntradaDeDados(posicao, produtos);
-
-
-
+void Ordenar (int tam, struct Produto *produto)
+{
+    int i;
+    if (tam > 1)
+    {
+        for (i=0; i<tam-1; i++)
+        {
+            if (produto[i].lucro < produto[i + 1].lucro )
+            {
+                troca(i,produto);
+            }
+        }
+        Ordenar(tam-1, produto);
     }
 }
 
+void Registra(int tamanho, struct Produto *produto){
+    int cod;
+    int quantVendida;
+    printf("Digite o Código do produto vendido:");
+    scanf("%d", &cod);
 
-void Exclusao(int tamanho, struct Produto *produtos){
-    int codigo;
-    printf("Digite o código do produto para exclusão:\n");
-    scanf("%d", &codigo);
+    int posicao = ProcuraProduto(tamanho,cod,produto);
 
-    int posicao = ProcuraProduto(tamanho,codigo,produtos);
     if (posicao < 0){
-        printf("código inválido");
+        printf("código inválido!");
     } else{
-        printf("produto encontrado com sucesso!");
-        MostraDados(posicao,produtos);
-        printf("deseja prosseguir com a exclusão?\n1 - Sim\n2 - Não\n");
-        int confirmacao;
-        scanf("%d", &confirmacao);
-        if (confirmacao == 1){
-            produtos[posicao].quantidade = 0;
-            printf("Exclusão concluída");
-        } else{
-            printf("operação cancelada");
-        }
+        printf("Produto Encontrado!");
+        printf("Digite a quantidade Vendida:");
+        scanf("%d", &quantVendida);
+        produto[posicao].quantidade += quantVendida;
+
     }
 }
 
-void Consulta(int tamanho, struct Produto *produtos){
-    int codigo;
-    printf("Digite o código do produto que deseja consultar:\n");
-    scanf("%d", &codigo);
-
-    int posicao = ProcuraProduto(tamanho,codigo,produtos);
-
-    if(produtos[posicao].quantidade == 0){
-        posicao = -1;
-    }
-    if (posicao < 0 ){
-        printf("Código inválido");
-    }else {
-        printf("Produto encontrado com sucesso!\n");
-        MostraDados(posicao, produtos);
-    }
-}
-
-void Lista(int tamanho, struct Produto *produtos){
+void lucratividade(int tamanho, struct Produto *produto){
     for (int i = 0; i < tamanho; ++i) {
-        if(produtos[i].quantidade == 0){
-
-        }else {
-            printf("produto: %d\n", i);
-            MostraDados(i, produtos);
-        }
+        produto[i].lucro += produto[i].preco * produto[i].quantidade * (produto[i].percentual / 100);
+    }
+    Ordenar(tamanho, produto);
+    printf("\n---lucratividade---\n");
+    for (int i = 0; i < tamanho; ++i) {
+        printf("produto: %d: \n", i+1);
+        MostraDados(i,produto);
     }
 }
 
@@ -149,10 +143,8 @@ int main() {
     do {
         printf("digite a opção desejada:\n");
         printf("1 - Incluir produto\n");
-        printf("2 - Alterar produto\n");
-        printf("3 - Excluir produto\n");
-        printf("4 - Consultar produto\n");
-        printf("5 - Listar todos os produtos\n");
+        printf("2 - Registrar venda\n");
+        printf("3 - Emitir lucratividade\n");
         printf("9 - Encerrar programa\n");
         scanf("%d", &opcao);
 
@@ -161,16 +153,10 @@ int main() {
                 tamanho = Inclusao(tamanho, produtos);
                 break;
             case 2:
-                Alteracao(tamanho,produtos);
+                Registra(tamanho,produtos);
                 break;
             case 3:
-                Exclusao(tamanho, produtos);
-                break;
-            case 4:
-                Consulta(tamanho, produtos);
-                break;
-            case 5:
-                Lista(tamanho, produtos);
+                lucratividade(tamanho, produtos);
                 break;
             case 9:
                 printf("Programa encerrado com sucesso!\n");
