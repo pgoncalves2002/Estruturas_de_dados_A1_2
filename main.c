@@ -44,7 +44,7 @@ void EntradaDeDados(int i, struct Produto *produtos){
 
 void MostraDados(int posicao, struct Produto *produto){
         printf("Descrição: %s\n", produto[posicao].descricao);
-        printf("Preço: %.2f\n", produto[posicao].preco);
+        printf("Lucro %.2f\n", produto[posicao].lucro);
 }
 
 void troca(int posicao, struct Produto *produto) {
